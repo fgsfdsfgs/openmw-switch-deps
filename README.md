@@ -8,7 +8,7 @@ Dependencies that are not explicitly shown here can be acquired using `dkp-pacma
 
 Before executing any of this:
 ```
-(dkp-)pacman -S devkitpro-pkgbuild-helpers libnx switch-tools switch-zlib switch-bzip2 switch-sdl2 switch-libdrm_nouveau switch-mesa switch-ffmpeg switch-libpng switch-libjpeg-turbo
+(dkp-)pacman -S devkitpro-pkgbuild-helpers libnx switch-tools switch-zlib switch-bzip2 switch-sdl2 switch-libdrm_nouveau switch-mesa switch-ffmpeg switch-libpng switch-libjpeg-turbo switch-bulletphysics
 # ...and other numerous dependencies that I can't remember
 source $DEVKITPRO/switchvars.sh
 ```
@@ -88,30 +88,6 @@ cmake \
 -DMYGUI_BUILD_TOOLS=OFF \
 -DMYGUI_BUILD_PLUGINS=OFF \
 -DMYGUI_STATIC=ON \
-..
-
-make && make install
-```
-
-## Bullet 2.88
-
-Requires no modifications (?)
-```
-wget https://github.com/bulletphysics/bullet3/archive/2.88.tar.gz
-tar xf 2.88.tar.gz
-cd bullet3-2.88
-
-mkdir switchbuild && cd switchbuild
-cmake \
--G"Unix Makefiles" \
--DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/switch.cmake" \
--DCMAKE_BUILD_TYPE=Release \
--DPKG_CONFIG_EXECUTABLE="$DEVKITPRO/portlibs/switch/bin/aarch64-none-elf-pkg-config" \
--DCMAKE_INSTALL_PREFIX="$DEVKITPRO/portlibs/switch" \
--DBUILD_BULLET2_DEMOS=OFF \
--DBUILD_CPU_DEMOS=OFF \
--DBUILD_UNIT_TESTS=OFF \
--DBUILD_EXTRAS=OFF \
 ..
 
 make && make install
