@@ -1,6 +1,6 @@
 # Build instructions and stuff
 
-Temporary repo for build instructions for the [Switch fork](https://github.com/fgsfdsfgs/openmw) of OpenMw.
+Temporary repo for build instructions for some of the dependencies of the [Switch fork](https://github.com/fgsfdsfgs/openmw) of OpenMW.
 
 This is going to assume that your devkitA64 is installed to the default path.
 
@@ -8,7 +8,7 @@ Dependencies that are not explicitly shown here can be acquired using `dkp-pacma
 
 Before executing any of this:
 ```
-(dkp-)pacman -S devkitpro-pkgbuild-helpers switch-tools switch-sdl2 switch-libdrm_nouveau switch-mesa
+(dkp-)pacman -S devkitpro-pkgbuild-helpers libnx switch-tools switch-zlib switch-bzip2 switch-sdl2 switch-libdrm_nouveau switch-mesa switch-ffmpeg switch-libpng switch-libjpeg-turbo
 # ...and other numerous dependencies that I can't remember
 source $DEVKITPRO/switchvars.sh
 ```
@@ -16,13 +16,15 @@ source $DEVKITPRO/switchvars.sh
 ## OpenAL
 
 Use the [openal-soft](https://github.com/fgsfdsfgs/openal-soft) port.
+
 ```make && make install```
 
 ## OpenSceneGraph 3.6.x
 
 [This fork](https://github.com/fgsfdsfgs/OpenSceneGraph/tree/3.6) has the necessary patches applied to it.
-Get the 3.6 branch and build it:
+Get the 3.6 branch and build it. This takes a **long** time, don't foget about the `-j` option for `make`.
 ```
+cd OpenSceneGraph
 mkdir switchbuild && cd switchbuild
 cmake \
 -G"Unix Makefiles" \
@@ -60,9 +62,12 @@ make && make install
 Requires some patches, including one to add swkbd support.
 ```
 wget https://github.com/MyGUI/mygui/archive/MyGUI3.2.2.tar.gz
-...
-patch -p1 -t -N < patches/mygui/mygui_endianness.patch
-patch -p1 -t -N < patches/mygui/mygui_swkbd.patch
+tar xf MyGUI3.2.2.tar.gz
+cd mygui-MyGUI3.2.2
+
+patch -p1 -t -N < ../patches/mygui/mygui_endianness.patch
+patch -p1 -t -N < ../patches/mygui/mygui_swkbd.patch
+
 mkdir switchbuild && cd switchbuild
 cmake \
 -G"Unix Makefiles" \
@@ -76,6 +81,7 @@ cmake \
 -DMYGUI_BUILD_PLUGINS=OFF \
 -DMYGUI_STATIC=ON \
 ..
+
 make && make install
 ```
 
@@ -84,7 +90,9 @@ make && make install
 Requires no modifications (?)
 ```
 wget https://github.com/bulletphysics/bullet3/archive/2.88.tar.gz
-...
+tar xf 2.88.tar.gz
+cd bullet3-2.88
+
 mkdir switchbuild && cd switchbuild
 cmake \
 -G"Unix Makefiles" \
@@ -97,18 +105,22 @@ cmake \
 -DBUILD_UNIT_TESTS=OFF \
 -DBUILD_EXTRAS=OFF \
 ..
+
 make && make install
 ```
 
 ## FFmpeg 4.1.1
 
-The [dkp-pacman](https://github.com/devkitPro/pacman-packages/blob/master/switch/ffmpeg/PKGBUILD) package is built without support for Bink and MP3.
+The [dkp-pacman](https://github.com/devkitPro/pacman-packages/blob/master/switch/ffmpeg/PKGBUILD) package is built without support for Bink and MP3, but you should probably still install it first to pull all the dependencies.
 You'll have to rebuild it if you want that to work:
 ```
 wget https://ffmpeg.org/releases/ffmpeg-4.1.1.tar.xz
 wget https://raw.githubusercontent.com/devkitPro/pacman-packages/master/switch/ffmpeg/ffmpeg.patch
-...
-patch -Np1 -i ffmpeg.patch
+tar xf ffmpeg-4.1.1.tar.xz
+cd ffmpeg-4.1.1
+
+patch -Np1 -i ../ffmpeg.patch
+
 ./configure --prefix="$PORTLIBS_PREFIX" --disable-shared --enable-static \
   --cross-prefix=aarch64-none-elf- --enable-cross-compile \
   --arch=aarch64 --target-os=horizon --enable-pic --disable-asm \
@@ -124,6 +136,7 @@ patch -Np1 -i ffmpeg.patch
   --disable-demuxers --enable-demuxer=h264,matroska,mov,ogg,rtsp,mpegts,bink,wav,mp3 \
   --enable-decoder=mp3,bink,binkaudio_rdft,binkaudio_dct,pcm_*,opus,vorbis \
   --disable-parsers --enable-parser=h264,aac,mpegaudio,vorbis,opus
+
 make && make install
 ```
 
@@ -133,11 +146,16 @@ Luckily we only need a few libs from Boost, but `boost::filesystem` and `boost::
 Boost.Build also doesn't seem to find zlib unless explicitly specified in `project-config.jam`.
 ```
 wget https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2
-...
-patch -p1 -t -N < patches/boost/boost_iostreams.patch
-patch -p1 -t -N < patches/boost/boost_filesystem.patch
+tar xf boost_1_69_0.tar.bz2
+cd boost_1_69_0
+
+patch -p1 -t -N < ../patches/boost/boost_iostreams.patch
+patch -p1 -t -N < ../patches/boost/boost_filesystem.patch
+
 ./bootstrap.sh --prefix="$PORTLIBS_PREFIX"
-mv -f patches/boost/switch-project-config.jam project-config.jam
+
+mv -f ../patches/boost/switch-project-config.jam project-config.jam
+
 ./b2 \
   --with-filesystem --with-system --with-program_options --with-iostreams \
   --prefix="$PORTLIBS_PREFIX" \
