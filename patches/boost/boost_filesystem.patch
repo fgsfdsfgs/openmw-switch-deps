@@ -1,0 +1,52 @@
+diff -ur a/libs/filesystem/src/operations.cpp b/libs/filesystem/src/operations.cpp
+--- a/libs/filesystem/src/operations.cpp	2018-12-05 22:58:17.000000000 +0300
++++ b/libs/filesystem/src/operations.cpp	2019-06-06 02:44:45.706634300 +0300
+@@ -844,6 +844,9 @@
+   BOOST_FILESYSTEM_DECL
+   path canonical(const path& p, const path& base, system::error_code* ec)
+   {
++#   ifdef __SWITCH__
++    return path(p);
++#   else
+     path source (p.is_absolute() ? p : absolute(p, base));
+     path root(source.root_path());
+     path result;
+@@ -921,6 +924,7 @@
+       ec->clear();
+     BOOST_ASSERT_MSG(result.is_absolute(), "canonical() implementation error; please report");
+     return result;
++#   endif // __SWITCH__
+   }
+ 
+   BOOST_FILESYSTEM_DECL
+@@ -1792,7 +1796,11 @@
+ #   ifdef BOOST_POSIX_API
+ 
+     struct stat path_stat;
++#ifdef __SWITCH__
++    if (::stat(p.c_str(), &path_stat)!= 0)
++#else
+     if (::lstat(p.c_str(), &path_stat)!= 0)
++#endif
+     {
+       if (ec != 0)                            // always report errno, even though some
+         ec->assign(errno, system_category());   // errno values are not status_errors
+@@ -1866,6 +1874,8 @@
+       
+ #     ifdef __ANDROID__
+         const char* default_tmp = "/data/local/tmp";
++#     elif defined __SWITCH__
++        const char* default_tmp = "./tmp";
+ #     else
+         const char* default_tmp = "/tmp";
+ #     endif
+@@ -2128,7 +2138,8 @@
+     && !(defined(linux) || defined(__linux) || defined(__linux__))\
+     && !defined(__ANDROID__)\
+     && (!defined(__hpux) || defined(_REENTRANT)) \
+-    && (!defined(_AIX) || defined(__THREAD_SAFE))
++    && (!defined(_AIX) || defined(__THREAD_SAFE)) \
++    && !defined(__SWITCH__)
+ 
+     errno = 0;
+ 
