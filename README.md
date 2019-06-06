@@ -16,15 +16,22 @@ source $DEVKITPRO/switchvars.sh
 ## OpenAL
 
 Use the [openal-soft](https://github.com/fgsfdsfgs/openal-soft) port.
+```
+git clone https://github.com/fgsfdsfgs/openal-soft.git
+cd openal-soft
 
-```make && make install```
+make -f Makefile.nx
+make -f Makefile.nx install
+```
 
 ## OpenSceneGraph 3.6.x
 
 [This fork](https://github.com/fgsfdsfgs/OpenSceneGraph/tree/3.6) has the necessary patches applied to it.
 Get the 3.6 branch and build it. This takes a **long** time, don't foget about the `-j` option for `make`.
 ```
+git clone -b 3.6 https://github.com/fgsfdsfgs/OpenSceneGraph.git
 cd OpenSceneGraph
+
 mkdir switchbuild && cd switchbuild
 cmake \
 -G"Unix Makefiles" \
@@ -54,6 +61,7 @@ cmake \
 -DBUILD_OSG_DEPRECATED_SERIALIZERS=OFF \
 -D_OPENTHREADS_ATOMIC_USE_GCC_BUILTINS=ON \
 ..
+
 make && make install
 ```
 
