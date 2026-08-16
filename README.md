@@ -8,22 +8,10 @@ Dependencies that are not explicitly shown here can be acquired using `dkp-pacma
 
 Before executing any of this:
 ```
-(dkp-)pacman -S devkitpro-pkgbuild-helpers libnx switch-tools switch-zlib switch-bzip2 switch-sdl2 switch-libdrm_nouveau switch-mesa switch-ffmpeg switch-libpng switch-libjpeg-turbo switch-bulletphysics
+(dkp-)pacman -S dkp-toolchain-vars libnx switch-tools switch-zlib switch-bzip2 switch-sdl2 switch-libdrm_nouveau switch-mesa switch-ffmpeg switch-libpng switch-libjpeg-turbo switch-bulletphysics switch-openal-soft switch-cmake switch-pkg-config
 # ...and other numerous dependencies that I can't remember
 source $DEVKITPRO/switchvars.sh
 ```
-
-## OpenAL
-
-Use the [openal-soft](https://github.com/fgsfdsfgs/openal-soft) port.
-```
-git clone https://github.com/fgsfdsfgs/openal-soft.git
-cd openal-soft
-
-make -f Makefile.nx
-make -f Makefile.nx install
-```
-
 ## OpenSceneGraph 3.6.x
 
 [This fork](https://github.com/fgsfdsfgs/OpenSceneGraph/tree/3.6) has the necessary patches applied to it.
@@ -33,9 +21,9 @@ git clone -b 3.6 https://github.com/fgsfdsfgs/OpenSceneGraph.git
 cd OpenSceneGraph
 
 mkdir switchbuild && cd switchbuild
-cmake \
+aarch64-none-elf-cmake \
 -G"Unix Makefiles" \
--DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/switch.cmake" \
+-DSWITCH_LIBNX=ON \
 -DCMAKE_BUILD_TYPE=Release \
 -DPKG_CONFIG_EXECUTABLE="$DEVKITPRO/portlibs/switch/bin/aarch64-none-elf-pkg-config" \
 -DCMAKE_INSTALL_PREFIX="$DEVKITPRO/portlibs/switch" \
@@ -60,6 +48,9 @@ cmake \
 -DBUILD_OSG_PLUGINS_BY_DEFAULT=OFF \
 -DBUILD_OSG_DEPRECATED_SERIALIZERS=OFF \
 -D_OPENTHREADS_ATOMIC_USE_GCC_BUILTINS=ON \
+-DFREETYPE_INCLUDE_DIRS="$DEVKITPRO/portlibs/switch/include/freetype2" \
+-DFREETYPE_LIBRARIES="-lfreetype -lbz2" \
+-DFREETYPE_FOUND=TRUE \
 ..
 
 make && make install
@@ -75,19 +66,26 @@ cd mygui-MyGUI3.2.2
 
 patch -p1 -t -N < ../patches/mygui/mygui_endianness.patch
 patch -p1 -t -N < ../patches/mygui/mygui_swkbd.patch
+patch -p1 -t -N < ../patches/mygui/mygui_dlfcn.patch
 
 mkdir switchbuild && cd switchbuild
-cmake \
+aarch64-none-elf-cmake \
 -G"Unix Makefiles" \
--DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/switch.cmake" \
+-DSWITCH_LIBNX=ON \
 -DCMAKE_BUILD_TYPE=Release \
 -DPKG_CONFIG_EXECUTABLE="$DEVKITPRO/portlibs/switch/bin/aarch64-none-elf-pkg-config" \
 -DCMAKE_INSTALL_PREFIX="$DEVKITPRO/portlibs/switch" \
--DMYGUI_RENDERSYSTEM=ON \
+-DMYGUI_RENDERSYSTEM=0 \
 -DMYGUI_BUILD_DEMOS=OFF \
 -DMYGUI_BUILD_TOOLS=OFF \
 -DMYGUI_BUILD_PLUGINS=OFF \
 -DMYGUI_STATIC=ON \
+-DFREETYPE_INCLUDE_DIRS="$DEVKITPRO/portlibs/switch/include/freetype2" \
+-DFREETYPE_LIBRARIES="-lfreetype -lbz2" \
+-DFREETYPE_FOUND=TRUE \
+-DCMAKE_CXX_STANDARD="11" \
+-DCMAKE_CXX_EXTENSIONS=ON \
+-DCMAKE_CXX_FLAGS="-fpermissive -D__SWITCH__" \
 ..
 
 make && make install
@@ -95,11 +93,11 @@ make && make install
 
 ## FFmpeg 4.1.1
 
-The [dkp-pacman](https://github.com/devkitPro/pacman-packages/blob/master/switch/ffmpeg/PKGBUILD) package is built without support for Bink and MP3, but you should probably still install it first to pull all the dependencies.
-You'll have to rebuild it if you want that to work:
+The [dkp-pacman](https://github.com/devkitPro/pacman-packages/blob/master/switch/ffmpeg/PKGBUILD) package is too new, but you should probably still install it first to pull all the dependencies.
+You'll have to build 4.1.1 yourself:
 ```
 wget https://ffmpeg.org/releases/ffmpeg-4.1.1.tar.xz
-wget https://raw.githubusercontent.com/devkitPro/pacman-packages/master/switch/ffmpeg/ffmpeg.patch
+wget https://raw.githubusercontent.com/devkitPro/pacman-packages/90b0bc8fa754055b073778eb4da1a8b364c30839/switch/ffmpeg/ffmpeg.patch
 tar xf ffmpeg-4.1.1.tar.xz
 cd ffmpeg-4.1.1
 

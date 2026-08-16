@@ -9,7 +9,7 @@ import feature ;
 # file.
 if ! gcc in [ feature.values <toolset> ]
 {
-    using gcc : arm : aarch64-none-elf-g++.exe ;
+    using gcc : arm : aarch64-none-elf-g++ ;
 }
 
 using zlib : 1.2.11 : <search>/opt/devkitpro/portlibs/switch/lib <name>libz <include>/opt/devkitpro/portlibs/switch/include ;

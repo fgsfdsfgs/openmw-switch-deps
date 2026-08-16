@@ -1,0 +1,21 @@
+diff --git a/MyGUI_DynLib.cpp b/mygui-MyGUI3.2.2/MyGUIEngine/src/MyGUI_DynLib.cpp
+index 71f5dcc..6547af6 100755
+--- a/MyGUI_DynLib.cpp
++++ b/MyGUIEngine/src/MyGUI_DynLib.cpp
+@@ -10,7 +10,15 @@
+ #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
+ #	include <windows.h>
+ #elif MYGUI_PLATFORM == MYGUI_PLATFORM_LINUX
+-#	include <dlfcn.h>
++#	ifdef __SWITCH__
++#		define dlopen(...) (nullptr)
++#		define dlclose(...) (0)
++#		define dlsym(...) (nullptr)
++#		define RTLD_GLOBAL 0
++#		define RTLD_LAZY 0
++#	else
++#		include <dlfcn.h>
++#	endif
+ #endif
+ 
+ namespace MyGUI

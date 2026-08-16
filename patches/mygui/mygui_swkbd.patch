@@ -5,7 +5,7 @@ diff -ur a/MyGuiEngine/CMakeLists.txt b/MyGuiEngine/CMakeLists.txt
  	endif ()
  endif()
  
-+if (SWITCH_LIBNX)
++if (SWITCH_LIBNX OR NINTENDO_SWITCH)
 +	add_definitions(-D__SWITCH__)
 +	include_directories(SYSTEM "$ENV{DEVKITPRO}/libnx/include")
 +endif()

@@ -4,7 +4,7 @@
  endif ()
  
  # determine system endianess
-+if(SWITCH_LIBNX)
++if(SWITCH_LIBNX OR NINTENDO_SWITCH)
 +set(MYGUI_TEST_BIG_ENDIAN 0)
 +else()
  include(TestBigEndian)
